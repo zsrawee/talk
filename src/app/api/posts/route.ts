@@ -6,7 +6,7 @@ import { containsBadWords } from "@/lib/bad-words";
 import { handleBadWords } from "@/lib/ban-user";
 
 const postSchema = z.object({
-  title: z.string().min(3, "العنوان يجب أن يكون 3 أحرف على الأقل"),
+  title: z.string().min(3, "العنوان يجب أن يكون 3 أحرف على الأقل").max(20, "العنوان يجب أن يكون 20 حرف على الأكثر"),
   content: z.string().min(10, "المحتوى يجب أن يكون 10 أحرف على الأقل"),
   published: z.boolean().default(false),
 });

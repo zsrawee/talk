@@ -16,7 +16,7 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
 
   if (session?.user) {
-    router.push("/dashboard");
+    router.replace("/dashboard");
     return null;
   }
 

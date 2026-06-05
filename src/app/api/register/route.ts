@@ -6,7 +6,7 @@ import { containsBadWords } from "@/lib/bad-words";
 import { verifyCaptcha } from "@/lib/captcha";
 
 const registerSchema = z.object({
-  name: z.string().min(2, "الاسم يجب أن يكون 2 أحرف على الأقل"),
+  name: z.string().min(2, "الاسم يجب أن يكون 2 أحرف على الأقل").max(20, "الاسم يجب أن يكون 20 حرف على الأكثر"),
   email: z.string().email("البريد الإلكتروني غير صحيح"),
   password: z.string().min(6, "كلمة المرور يجب أن تكون 6 أحرف على الأقل"),
   captchaAnswer: z.number(),

@@ -72,8 +72,9 @@ export default function CreatePostPage() {
             <Input
               id="title"
               name="title"
-              label={t("title")}
+              label={`${t("title")} (20 حرف كحد أقصى)`}
               placeholder={t("title")}
+              maxLength={20}
               required
             />
             <div className="space-y-1">

@@ -101,8 +101,9 @@ export default function RegisterPage() {
           <Input
             id="name"
             name="name"
-            label="الاسم"
+            label="الاسم (20 حرف كحد أقصى)"
             placeholder="الاسم الكامل"
+            maxLength={20}
             required
           />
           <Input

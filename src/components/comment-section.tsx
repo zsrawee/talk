@@ -152,14 +152,18 @@ export function CommentSection({ postId }: { postId: string }) {
           )}
           <textarea
             value={text}
-            onChange={(e) => setText(e.target.value)}
+            onChange={(e) => setText(e.target.value.slice(0, 100))}
             placeholder={t("writeComment")}
             rows={3}
+            maxLength={100}
             className="w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:placeholder:text-gray-500"
           />
-          <Button type="submit" disabled={sending || !text.trim()}>
-            {sending ? t("publishing") : t("send")}
-          </Button>
+          <div className="flex items-center justify-between">
+            <span className={`text-xs ${text.length >= 100 ? 'text-red-500' : 'text-gray-400'}`}>{text.length}/100</span>
+            <Button type="submit" disabled={sending || !text.trim()}>
+              {sending ? t("publishing") : t("send")}
+            </Button>
+          </div>
         </form>
       ) : (
         <p className="mb-8 text-sm text-gray-500">

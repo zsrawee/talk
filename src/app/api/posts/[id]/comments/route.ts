@@ -34,6 +34,9 @@ export async function POST(
     if (!content?.trim()) {
       return NextResponse.json({ error: "المحتوى مطلوب" }, { status: 400 });
     }
+    if (content.length > 100) {
+      return NextResponse.json({ error: "التعليق يجب أن يكون 100 حرف على الأقل" }, { status: 400 });
+    }
 
     if (containsBadWords(content)) {
       const result = await handleBadWords(session.user.id);
