@@ -75,7 +75,7 @@ export default function PostsPage() {
   return (
     <div>
       <h1 className="mb-8 text-3xl font-bold text-gray-900 dark:text-white">
-        المقالات
+        المقالاتالتبلتا
         <span className="mr-2 text-lg font-normal text-gray-500">
           ({posts.length > 0 ? `${posts.length} مقال` : ""})
         </span>
