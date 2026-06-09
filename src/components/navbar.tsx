@@ -20,9 +20,12 @@ export function Navbar() {
         <div className="flex items-center gap-8">
           <Link
             href="/"
-            className="text-xl font-bold bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent"
+            className="flex items-center gap-2"
           >
-            {t("siteName")}
+            <img src="/logo.png" alt="Logo" className="h-8 w-8 rounded-lg object-contain" />
+            <span className="text-xl font-bold bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent">
+              {t("siteName")}
+            </span>
           </Link>
           <div className="hidden items-center gap-6 sm:flex">
             <Link

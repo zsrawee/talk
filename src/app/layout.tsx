@@ -6,6 +6,9 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "منصتي",
   description: "منصة متكاملة للمقالات",
+  icons: {
+    icon: "/favicon.png",
+  },
 };
 
 export default function RootLayout({
