@@ -6,7 +6,7 @@ import { ThemeProvider } from "@/lib/theme-provider";
 import { useState, type ReactNode } from "react";
 import { LangProvider } from "@/lib/i18n";
 
-export function Providers({ children }: { children: ReactNode }) {
+export function Providers({ children, session }: { children: ReactNode; session?: any }) {
   const [queryClient] = useState(
     () =>
       new QueryClient({
@@ -20,7 +20,7 @@ export function Providers({ children }: { children: ReactNode }) {
   );
 
   return (
-    <SessionProvider>
+    <SessionProvider session={session}>
       <QueryClientProvider client={queryClient}>
         <ThemeProvider>
           <LangProvider>{children}</LangProvider>

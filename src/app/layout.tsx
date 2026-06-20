@@ -9,6 +9,7 @@ import {
 import "./globals.css";
 import { Navbar } from "@/components/navbar";
 import { Providers } from "./providers";
+import { auth } from "@/lib/auth";
 
 const amiri = Amiri({
   subsets: ["arabic", "latin"],
@@ -43,9 +44,11 @@ export const metadata: Metadata = {
   description: "منصة للمقالات والنقاشات — where ideas find their voice",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
+  const session = await auth();
+
   return (
     <html
       dir="rtl"
@@ -63,7 +66,7 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-screen font-body antialiased">
-        <Providers>
+        <Providers session={session}>
           <Navbar />
           <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
             {children}

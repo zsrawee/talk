@@ -55,7 +55,6 @@ export default function RegisterPage() {
 
       if (result?.ok) {
         router.push("/dashboard");
-        router.refresh();
       }
     } catch {
       setError(t("unknownError"));
