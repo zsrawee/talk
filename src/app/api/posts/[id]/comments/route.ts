@@ -1,8 +1,10 @@
+import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { containsBadWords } from "@/lib/bad-words";
 import { handleBadWords } from "@/lib/ban-user";
+import { getTranslations } from "@/lib/i18n";
 
 export async function GET(
   _req: Request,
@@ -22,32 +24,36 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const session = await auth();
+  const cookieStore = await cookies();
+  const lang = (cookieStore.get("lang")?.value as "ar" | "en") || "ar";
+  const { t } = getTranslations(lang);
+
   if (!session?.user) {
-    return NextResponse.json({ error: "غير مصرح" }, { status: 401 });
+    return NextResponse.json({ error: t("unauthorized") }, { status: 401 });
   }
   if (session.user.role === "banned") {
-    return NextResponse.json({ error: "حسابك محظور" }, { status: 403 });
+    return NextResponse.json({ error: t("banned") }, { status: 403 });
   }
 
   try {
     const { content, parentId } = await req.json();
     if (!content?.trim()) {
-      return NextResponse.json({ error: "المحتوى مطلوب" }, { status: 400 });
+      return NextResponse.json({ error: t("writeComment") }, { status: 400 });
     }
     if (content.length > 100) {
-      return NextResponse.json({ error: "التعليق يجب أن يكون 100 حرف على الأقل" }, { status: 400 });
+      return NextResponse.json({ error: "التعليق يجب أن يكون 100 حرف على الأكثر" }, { status: 400 });
     }
 
     if (containsBadWords(content)) {
       const result = await handleBadWords(session.user.id);
       if (result === "warning") {
         return NextResponse.json(
-          { error: "⚠️ تحذير أول: كلمات غير لائقة. إذا تكرر سيتم حظر حسابك وإدراج بريدك في القائمة السوداء" },
+          { error: t("banned") },
           { status: 403 }
         );
       }
       return NextResponse.json(
-        { error: "تم حظر حسابك لاستخدام كلمات غير لائقة - تم إدراج بريدك في القائمة السوداء" },
+        { error: t("bannedMsg") },
         { status: 403 }
       );
     }
@@ -58,7 +64,7 @@ export async function POST(
       });
       if (commentCount >= 1) {
         return NextResponse.json(
-          { error: "يمكنك الرد على منشور واحد فقط" },
+          { error: t("commentLimit") },
           { status: 403 }
         );
       }
@@ -70,7 +76,7 @@ export async function POST(
       });
       if (!parentComment || parentComment.postId !== (await params).id) {
         return NextResponse.json(
-          { error: "التعليق الأصلي غير موجود" },
+          { error: t("postNotFound") },
           { status: 400 }
         );
       }
@@ -98,7 +104,7 @@ export async function POST(
         await prisma.notification.create({
           data: {
             type: "REPLY_COMMENT",
-            message: `@${session.user.name || "مستخدم"} رد على تعليقك في "${post?.title || "المقال"}"`,
+            message: `@${session.user.name || t("anonymous")} ${t("comments")}`,
             userId: parent.authorId,
             actorId: session.user.id,
             postId: id,
@@ -110,7 +116,7 @@ export async function POST(
       await prisma.notification.create({
         data: {
           type: "REPLY_POST",
-          message: `@${session.user.name || "مستخدم"} علق على مقالك "${post.title}"`,
+          message: `@${session.user.name || t("anonymous")} ${t("comments")}`,
           userId: post.authorId,
           actorId: session.user.id,
           postId: id,
@@ -122,7 +128,7 @@ export async function POST(
     return NextResponse.json(comment, { status: 201 });
   } catch (error) {
     return NextResponse.json(
-      { error: "حدث خطأ أثناء إرسال التعليق" },
+      { error: t("unknownError") },
       { status: 500 }
     );
   }

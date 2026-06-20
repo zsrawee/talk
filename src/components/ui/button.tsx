@@ -1,42 +1,48 @@
-import { forwardRef, type ButtonHTMLAttributes } from "react";
 import { cn } from "@/lib/utils";
+import { type ButtonHTMLAttributes, forwardRef } from "react";
 
-export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: "primary" | "secondary" | "outline" | "ghost" | "danger";
-  size?: "sm" | "md" | "lg";
+const variants = {
+  primary:
+    "bg-ember text-paper hover:bg-ember/90 focus-visible:ring-starlight",
+  secondary:
+    "border border-starlight/40 text-starlight dark:text-starlight-light bg-transparent hover:bg-starlight/10 focus-visible:ring-starlight",
+  danger:
+    "bg-ember/10 text-ember border border-ember/30 hover:bg-ember/20 focus-visible:ring-ember dark:bg-ember/20 dark:text-ember-light dark:border-ember/50 dark:hover:bg-ember/30",
+  ghost:
+    "text-dusk dark:text-dusk-light hover:text-starlight dark:hover:text-starlight-light hover:bg-starlight/10 focus-visible:ring-starlight",
+};
+
+const sizes = {
+  sm: "px-3 py-1.5 text-sm",
+  md: "px-4 py-2 text-sm",
+  lg: "px-6 py-3 text-base",
+};
+
+type ButtonVariants = keyof typeof variants;
+type ButtonSizes = keyof typeof sizes;
+
+interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+  variant?: ButtonVariants;
+  size?: ButtonSizes;
 }
 
-const Button = forwardRef<HTMLButtonElement, ButtonProps>(
+export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant = "primary", size = "md", ...props }, ref) => {
     return (
       <button
+        ref={ref}
         className={cn(
-          "inline-flex items-center justify-center rounded-lg font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
-          {
-            "bg-violet-600 text-white hover:bg-violet-700 focus-visible:ring-violet-500":
-              variant === "primary",
-            "bg-gray-100 text-gray-900 hover:bg-gray-200 focus-visible:ring-gray-500":
-              variant === "secondary",
-            "border border-gray-300 bg-white text-gray-900 hover:bg-gray-50 focus-visible:ring-gray-500":
-              variant === "outline",
-            "text-gray-700 hover:bg-gray-100 hover:text-gray-900 focus-visible:ring-gray-500":
-              variant === "ghost",
-            "bg-red-600 text-white hover:bg-red-700 focus-visible:ring-red-500":
-              variant === "danger",
-          },
-          {
-            "h-8 px-3 text-sm": size === "sm",
-            "h-10 px-4 text-sm": size === "md",
-            "h-12 px-6 text-base": size === "lg",
-          },
+          "inline-flex items-center justify-center gap-2 rounded-sm font-display font-bold transition-all duration-200",
+          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-paper dark:focus-visible:ring-offset-night dark:ring-offset-night",
+          "disabled:pointer-events-none disabled:opacity-50",
+          variants[variant],
+          sizes[size],
           className
         )}
-        ref={ref}
         {...props}
       />
     );
   }
 );
-Button.displayName = "Button";
 
-export { Button };
+Button.displayName = "Button";

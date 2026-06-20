@@ -1,66 +1,39 @@
+import { cookies } from "next/headers";
+import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
-import { prisma } from "@/lib/prisma";
 import { AdminClient } from "./client";
+import { getTranslations } from "@/lib/i18n";
+
+export async function generateMetadata() {
+  const cookieStore = await cookies();
+  const lang = (cookieStore.get("lang")?.value as "ar" | "en") || "ar";
+  const { t } = getTranslations(lang);
+  return { title: t("adminPanel") };
+}
 
 export default async function AdminPage() {
   const session = await auth();
-  if (!session?.user || session.user.role !== "admin") {
-    redirect("/");
+
+  if (session?.user?.role !== "admin") {
+    redirect("/login");
   }
 
-  const [users, stats, topPosts] = await Promise.all([
+  const [users, posts] = await Promise.all([
     prisma.user.findMany({
       orderBy: { createdAt: "desc" },
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        role: true,
-        createdAt: true,
-        _count: { select: { posts: true, comments: true } },
-      },
+      include: { _count: { select: { posts: true } } },
     }),
-    Promise.all([
-      prisma.user.count(),
-      prisma.post.count(),
-      prisma.post.count({ where: { published: true } }),
-      prisma.comment.count(),
-      prisma.post.aggregate({ _sum: { views: true } }),
-    ]),
     prisma.post.findMany({
-      where: { published: true },
-      orderBy: { views: "desc" },
-      take: 5,
-      select: {
-        id: true,
-        title: true,
-        views: true,
-        createdAt: true,
-        author: { select: { name: true } },
-      },
+      orderBy: { createdAt: "desc" },
     }),
   ]);
 
-  const [totalUsers, totalPosts, publishedPosts, totalComments, totalViews] = stats;
+  const stats = {
+    totalUsers: users.length,
+    totalPosts: posts.length,
+    publishedPosts: posts.filter((p) => p.published).length,
+  };
 
-  return (
-    <AdminClient
-      users={users.map((u) => ({ ...u, createdAt: u.createdAt.toISOString() }))}
-      stats={{
-        totalUsers,
-        totalPosts,
-        publishedPosts,
-        totalComments,
-        totalViews: totalViews._sum.views || 0,
-      }}
-      topPosts={topPosts.map((p) => ({
-        id: p.id,
-        title: p.title,
-        views: p.views,
-        authorName: p.author.name,
-        createdAt: p.createdAt.toISOString(),
-      }))}
-    />
-  );
+  return <AdminClient data={{ users, posts, stats }} />;
 }

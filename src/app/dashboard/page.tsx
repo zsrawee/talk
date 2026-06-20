@@ -1,51 +1,32 @@
+import { cookies } from "next/headers";
+import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
-import { prisma } from "@/lib/prisma";
-import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { DashboardClient } from "./client";
+import { getTranslations } from "@/lib/i18n";
+
+export async function generateMetadata() {
+  const cookieStore = await cookies();
+  const lang = (cookieStore.get("lang")?.value as "ar" | "en") || "ar";
+  const { t } = getTranslations(lang);
+  return { title: t("dashboard") };
+}
 
 export default async function DashboardPage() {
   const session = await auth();
-  if (!session?.user) redirect("/login");
 
-  if (session.user.role === "banned") {
-    return <DashboardClient banned />;
+  if (!session?.user?.email) {
+    redirect("/login");
   }
 
-  const userId = session.user.id;
   const user = await prisma.user.findUnique({
-    where: { id: userId },
-    select: { name: true, email: true, image: true, role: true },
+    where: { email: session.user.email },
+    include: { posts: { orderBy: { createdAt: "desc" } } },
   });
 
-  const [totalPosts, publishedPosts, latestPosts] = await Promise.all([
-    prisma.post.count({ where: { authorId: userId } }),
-    prisma.post.count({ where: { authorId: userId, published: true } }),
-    prisma.post.findMany({
-      where: { authorId: userId },
-      select: { id: true, title: true, createdAt: true, published: true },
-      orderBy: { createdAt: "desc" },
-      take: 5,
-    }),
-  ]);
+  if (!user) {
+    redirect("/login");
+  }
 
-  const draftPosts = totalPosts - publishedPosts;
-
-  return (
-    <DashboardClient
-      user={{
-        name: user?.name ?? null,
-        email: user?.email ?? null,
-        image: user?.image ?? null,
-        role: user?.role ?? null,
-      }}
-      stats={{ totalPosts, publishedPosts, draftPosts }}
-      posts={latestPosts.map((p) => ({
-        id: p.id,
-        title: p.title,
-        createdAt: p.createdAt.toISOString(),
-        published: p.published,
-      }))}
-    />
-  );
+  return <DashboardClient posts={user.posts} />;
 }

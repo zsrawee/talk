@@ -1,38 +1,44 @@
-import { forwardRef, type InputHTMLAttributes } from "react";
 import { cn } from "@/lib/utils";
+import type { InputHTMLAttributes } from "react";
 
-export interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
+interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   label?: string;
   error?: string;
 }
 
-const Input = forwardRef<HTMLInputElement, InputProps>(
-  ({ className, label, error, id, ...props }, ref) => {
-    return (
-      <div className="space-y-1">
-        {label && (
-          <label
-            htmlFor={id}
-            className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-          >
-            {label}
-          </label>
+export function Input({
+  className,
+  label,
+  error,
+  id,
+  ...props
+}: InputProps) {
+  return (
+    <div className="w-full">
+      {label && (
+        <label
+          htmlFor={id}
+          className="mb-1.5 block font-display text-sm font-bold text-moon-ink dark:text-moon-text"
+        >
+          {label}
+        </label>
+      )}
+      <input
+        id={id}
+        className={cn(
+          "w-full rounded-sm border bg-surface px-4 py-2.5 text-sm text-moon-ink dark:text-moon-text dark:bg-surface-dark",
+          "border-starlight/30 placeholder:text-dusk",
+          "focus:outline-none focus:ring-2 focus:ring-ember focus:border-ember",
+          "dark:placeholder:text-dusk-light",
+          "transition-colors duration-200",
+          error && "border-ember focus:ring-ember",
+          className
         )}
-        <input
-          id={id}
-          className={cn(
-            "flex h-10 w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:placeholder:text-gray-500",
-            error && "border-red-500 focus:ring-red-500",
-            className
-          )}
-          ref={ref}
-          {...props}
-        />
-        {error && <p className="text-sm text-red-500">{error}</p>}
-      </div>
-    );
-  }
-);
-Input.displayName = "Input";
-
-export { Input };
+        {...props}
+      />
+      {error && (
+        <p className="mt-1 text-xs text-ember dark:text-ember-light">{error}</p>
+      )}
+    </div>
+  );
+}

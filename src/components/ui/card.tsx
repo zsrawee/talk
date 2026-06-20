@@ -1,5 +1,5 @@
-import type { HTMLAttributes } from "react";
 import { cn } from "@/lib/utils";
+import type { HTMLAttributes } from "react";
 
 export function Card({
   className,
@@ -8,7 +8,7 @@ export function Card({
   return (
     <div
       className={cn(
-        "rounded-2xl border border-gray-100 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900",
+        "border border-starlight/20 bg-surface dark:bg-surface-dark",
         className
       )}
       {...props}
@@ -20,14 +20,18 @@ export function CardHeader({
   className,
   ...props
 }: HTMLAttributes<HTMLDivElement>) {
-  return <div className={cn("p-6 pb-0", className)} {...props} />;
+  return (
+    <div className={cn("border-b border-starlight/20 px-6 py-5 dark:border-starlight-light/20", className)} {...props} />
+  );
 }
 
 export function CardContent({
   className,
   ...props
 }: HTMLAttributes<HTMLDivElement>) {
-  return <div className={cn("p-6 pt-0", className)} {...props} />;
+  return (
+    <div className={cn("px-6 py-5", className)} {...props} />
+  );
 }
 
 export function CardFooter({
@@ -37,7 +41,7 @@ export function CardFooter({
   return (
     <div
       className={cn(
-        "flex items-center p-6 pt-0 border-t border-gray-100 mt-6",
+        "border-t border-starlight/20 px-6 py-4",
         className
       )}
       {...props}

@@ -1,128 +1,75 @@
-"use client";
-
-import { useState, useEffect, useRef, useCallback } from "react";
+import { cookies } from "next/headers";
+import { prisma } from "@/lib/prisma";
 import Link from "next/link";
-import { Card, CardHeader, CardContent } from "@/components/ui/card";
-import { Loader2 } from "lucide-react";
+import { getTranslations } from "@/lib/i18n";
 
-interface Post {
-  id: string;
-  title: string;
-  content: string;
-  createdAt: string;
-  author: { name: string | null };
-}
-
-interface PageData {
-  posts: Post[];
-  total: number;
-  page: number;
-  limit: number;
-  hasMore: boolean;
-}
-
-export default function PostsPage() {
-  const [posts, setPosts] = useState<Post[]>([]);
-  const [page, setPage] = useState(1);
-  const [hasMore, setHasMore] = useState(true);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-  const loaderRef = useRef<HTMLDivElement>(null);
-
-  const fetchPosts = useCallback(async (pageNum: number) => {
-    try {
-      setLoading(true);
-      const res = await fetch(`/api/posts?page=${pageNum}&limit=9`);
-      const data: PageData = await res.json();
-      if (pageNum === 1) {
-        setPosts(data.posts);
-      } else {
-        setPosts((prev) => [...prev, ...data.posts]);
-      }
-      setHasMore(data.hasMore);
-    } catch {
-      setError("حدث خطأ في تحميل المقالات");
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchPosts(1);
-  }, [fetchPosts]);
-
-  useEffect(() => {
-    const el = loaderRef.current;
-    if (!el) return;
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting && hasMore && !loading) {
-          setPage((prev) => {
-            const next = prev + 1;
-            fetchPosts(next);
-            return next;
-          });
-        }
+async function getPosts() {
+  try {
+    return await prisma.post.findMany({
+      where: { published: true },
+      orderBy: { createdAt: "desc" },
+      include: {
+        author: { select: { name: true, image: true } },
       },
-      { threshold: 0.1 }
-    );
+    });
+  } catch {
+    return [];
+  }
+}
 
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, [hasMore, loading, fetchPosts]);
+export default async function PostsPage() {
+  const posts = await getPosts();
+  const cookieStore = await cookies();
+  const lang = (cookieStore.get("lang")?.value as "ar" | "en") || "ar";
+  const { t } = getTranslations(lang);
 
   return (
-    <div>
-      <h1 className="mb-8 text-3xl font-bold text-gray-900 dark:text-white">
-        المقالاتالتبلتا
-        <span className="mr-2 text-lg font-normal text-gray-500">
-          ({posts.length > 0 ? `${posts.length} مقال` : ""})
-        </span>
+    <div className="mx-auto max-w-4xl">
+      <span className="horizon-rule mb-4 w-20" />
+      <h1 className="font-display text-4xl font-black tracking-tight text-moon-ink dark:text-moon-text">
+        {t("posts")}
       </h1>
+      <p className="mt-2 text-dusk dark:text-dusk-light">
+        {t("latestPostsSubtitle")}
+      </p>
 
-      {error && (
-        <div className="mb-4 rounded-lg bg-red-50 p-3 text-sm text-red-600 dark:bg-red-900/30 dark:text-red-400">
-          {error}
+      {posts.length === 0 && (
+        <div className="mt-16 text-center">
+          <p className="text-dusk dark:text-dusk-light">{t("noPosts")}</p>
+          <Link
+            href="/dashboard"
+            className="mt-4 inline-block font-display text-sm font-bold text-ember underline-offset-4 hover:underline dark:text-ember-light"
+          >
+            {t("writeFirst")} →
+          </Link>
         </div>
       )}
 
-      {posts.length === 0 && !loading ? (
-        <p className="text-gray-500 dark:text-gray-400">
-          لا توجد مقالات منشورة بعد
-        </p>
-      ) : (
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {posts.map((post) => (
-            <Link key={post.id} href={`/posts/${post.id}`}>
-              <Card className="cursor-pointer transition-shadow hover:shadow-md">
-                <CardHeader>
-                  <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
-                    {post.title}
-                  </h2>
-                  <p className="text-sm text-gray-500">
-                    بقلم {post.author.name || "مجهول"} |{" "}
-                    {new Date(post.createdAt).toLocaleDateString("ar-SA")}
-                  </p>
-                </CardHeader>
-                <CardContent>
-                  <p className="line-clamp-3 text-gray-600 dark:text-gray-400">
-                    {post.content}
-                  </p>
-                </CardContent>
-              </Card>
-            </Link>
-          ))}
-        </div>
-      )}
-
-      {loading && (
-        <div className="flex justify-center py-8">
-          <Loader2 className="h-8 w-8 animate-spin text-violet-600" />
-        </div>
-      )}
-
-      {hasMore && <div ref={loaderRef} className="h-10" />}
+      <div className="mt-10 grid gap-5">
+        {posts.map((post) => (
+          <Link
+            key={post.id}
+            href={`/posts/${post.id}`}
+            className="group border border-starlight/20 bg-surface p-6 transition-all duration-300 hover:border-ember/40 dark:bg-surface-dark"
+          >
+            <h2 className="font-display text-xl font-bold text-moon-ink underline-offset-4 transition-colors group-hover:text-ember dark:text-moon-text dark:group-hover:text-ember-light">
+              {post.title}
+            </h2>
+            {post.content && (
+              <p className="mt-2 text-sm leading-relaxed text-dusk dark:text-dusk-light line-clamp-2">
+                {post.content.slice(0, 200)}
+              </p>
+            )}
+            <div className="mt-4 flex items-center gap-3 text-xs text-dusk/60 dark:text-dusk-light/60">
+              <span>{post.author?.name || t("anonymous")}</span>
+              <span className="text-dusk/30 dark:text-dusk-light/30 mx-1">·</span>
+              <span>
+                {new Date(post.createdAt).toLocaleDateString(lang === "ar" ? "ar-SA" : "en-US")}
+              </span>
+            </div>
+          </Link>
+        ))}
+      </div>
     </div>
   );
 }

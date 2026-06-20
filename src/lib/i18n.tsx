@@ -1,208 +1,71 @@
 "use client";
-import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 
-const ar: Record<string, string> = {
-  siteName: "منصتي",
-  posts: "المقالات",
-  channel: "قناتي",
-  admin: "لوحة الإدارة",
-  login: "تسجيل دخول",
-  register: "إنشاء حساب",
-  logout: "تسجيل خروج",
-  createPost: "مقال جديد",
-  noPosts: "لا توجد مقالات منشورة بعد",
-  by: "بقلم",
-  readMore: "اقرأ المزيد",
-  back: "العودة",
-  title: "العنوان",
-  content: "المحتوى",
-  publish: "نشر المقال",
-  publishing: "جاري النشر...",
-  published: "منشور",
-  draft: "مسودة",
-  publishedLabel: "منشور",
-  publishedHint: "عند تفعيل هذا الخيار، سيظهر المقال للجميع في صفحة المقالات",
-  addImage: "إضافة صورة",
-  uploadImage: "اختيار صورة",
-  uploading: "جاري الرفع...",
-  comments: "التعليقات",
-  noComments: "لا توجد تعليقات بعد",
-  addComment: "أضف تعليقاً",
-  reply: "رد",
-  replyTo: "رد على",
-  writeComment: "اكتب تعليقاً...",
-  send: "إرسال",
-  notifications: "الإشعارات",
-  noNotifications: "لا توجد إشعارات",
-  markRead: "تحديد كمقروء",
-  commentedOn: "علق على",
-  repliedTo: "رد على تعليقك في",
-  welcome: "مرحباً",
-  yourPosts: "مقالاتك",
-  totalPosts: "إجمالي المقالات",
-  publishedPosts: "منشورة",
-  draftPosts: "مسودة",
-  latestPosts: "أحدث المقالات",
-  profile: "الملف الشخصي",
-  limitReached: "لقد وصلت للحد الأقصى (منشوران فقط)",
-  banned: "حسابك محظور",
-  bannedMsg: "تم حظر حسابك لمخالفة القوانين",
-  users: "المستخدمين",
-  ban: "حظر",
-  unban: "إلغاء الحظر",
-  adminPanel: "لوحة الإدارة",
-  noPermission: "ليس لديك صلاحية",
-  settings: "الإعدادات",
-  language: "اللغة",
-  theme: "المظهر",
-  dark: "داكن",
-  light: "فاتح",
-  deleteAccount: "حذف الحساب",
-  accountDeleted: "تم حذف الحساب",
-  accountDeletedMsg: "تم حذف حسابك بنجاح. يمكنك إغلاق هذه الصفحة.",
-  bannedConfirm: "هل أنت متأكد؟ سيتم حذف حسابك نهائياً ولا يمكن استعادته",
-  terms: "الشروط والأحكام",
-  termsTitle: "شروط استخدام المنصة",
-  rules: "القوانين",
-  punishments: "العقوبات",
-  rule1: "يمنع استخدام الكلمات البذيئة أو المسيئة",
-  rule2: "يمنع نشر محتوى إباحي أو غير لائق",
-  rule3: "يمنع التحرش أو التنمر بأي مستخدم",
-  rule4: "يمنع انتحال الشخصيات أو استخدام حسابات وهمية",
-  rule5: "يمنع نشر الروابط الضارة أو الإعلانات غير المصرح بها",
-  rule6: "الاحترام المتبادل بين جميع المستخدمين إلزامي",
-  punish1: "إنذار أول + حذف المحتوى المخالف",
-  punish2: "حظر مؤقت (7 أيام) عند التكرار",
-  punish3: "حظر دائم للحساب عند الإصرار",
-  punish4: "حظر دائم + إدراج البريد الإلكتروني في القائمة السوداء",
-  readTerms: "أوافق على الشروط والأحكام",
-  rule7: "يمنع إنشاء أكثر من حساب واحد لكل شخص - سيتم حظر الحسابات المكررة",
-  punish5: "حظر دائم لجميع الحسابات المكررة دون استثناء",
-};
-
-const en: Record<string, string> = {
-  siteName: "MyPlatform",
-  posts: "Posts",
-  channel: "My Channel",
-  admin: "Admin Panel",
-  login: "Login",
-  register: "Register",
-  logout: "Logout",
-  createPost: "New Post",
-  noPosts: "No published posts yet",
-  by: "By",
-  readMore: "Read more",
-  back: "Back",
-  title: "Title",
-  content: "Content",
-  publish: "Publish",
-  publishing: "Publishing...",
-  published: "Published",
-  draft: "Draft",
-  publishedLabel: "Published",
-  publishedHint: "When enabled, the post will be visible to everyone on the posts page",
-  addImage: "Add Image",
-  uploadImage: "Choose Image",
-  uploading: "Uploading...",
-  comments: "Comments",
-  noComments: "No comments yet",
-  addComment: "Add a comment",
-  reply: "Reply",
-  replyTo: "Reply to",
-  writeComment: "Write a comment...",
-  send: "Send",
-  notifications: "Notifications",
-  noNotifications: "No notifications",
-  markRead: "Mark as read",
-  commentedOn: "commented on",
-  repliedTo: "replied to your comment on",
-  welcome: "Welcome",
-  yourPosts: "Your Posts",
-  totalPosts: "Total Posts",
-  publishedPosts: "Published",
-  draftPosts: "Drafts",
-  latestPosts: "Latest Posts",
-  profile: "Profile",
-  limitReached: "You have reached the maximum limit (2 posts only)",
-  banned: "Your account is banned",
-  bannedMsg: "Your account has been banned for violating rules",
-  users: "Users",
-  ban: "Ban",
-  unban: "Unban",
-  adminPanel: "Admin Panel",
-  noPermission: "You do not have permission",
-  settings: "Settings",
-  language: "Language",
-  theme: "Theme",
-  dark: "Dark",
-  light: "Light",
-  deleteAccount: "Delete Account",
-  accountDeleted: "Account Deleted",
-  accountDeletedMsg: "Your account has been deleted. You may close this page.",
-  bannedConfirm: "Are you sure? Your account will be permanently deleted and cannot be recovered",
-  terms: "Terms & Conditions",
-  termsTitle: "Platform Terms of Service",
-  rules: "Rules",
-  punishments: "Penalties",
-  rule1: "No profanity or offensive language",
-  rule2: "No pornographic or inappropriate content",
-  rule3: "No harassment or bullying of any user",
-  rule4: "No impersonation or fake accounts",
-  rule5: "No malicious links or unauthorized advertisements",
-  rule6: "Mutual respect between all users is mandatory",
-  punish1: "First warning + content removal",
-  punish2: "Temporary ban (7 days) on repeat",
-  punish3: "Permanent account ban on persistence",
-  punish4: "Permanent ban + email blacklisted",
-  readTerms: "I agree to the Terms & Conditions",
-  rule7: "Creating more than one account per person is prohibited - duplicate accounts will be banned",
-  punish5: "Permanent ban on all duplicate accounts without exception",
-};
+import { createContext, useState, useEffect, useContext, type ReactNode } from "react";
+import { ar, en } from "./dictionaries";
 
 type Lang = "ar" | "en";
-type Translations = Record<string, string>;
+type Translations = typeof ar;
 
-const LangContext = createContext<{
+interface TranslationContextValue {
   lang: Lang;
-  setLang: (l: Lang) => void;
-  t: (key: string) => string;
   dir: "rtl" | "ltr";
-}>({
-  lang: "ar",
-  setLang: () => {},
-  t: (k) => ar[k] || k,
-  dir: "rtl",
-});
+  setLang: (lang: Lang) => void;
+  t: (key: string, params?: Record<string, string | number>) => string;
+}
 
-export function LangProvider({ children }: { children: ReactNode }) {
+const LangContext = createContext<TranslationContextValue | null>(null);
+
+const allDicts: Record<Lang, Translations> = { ar, en };
+
+function getTranslations(lang: Lang = "ar") {
+  const dict = allDicts[lang];
+  const t = (key: string, params?: Record<string, string | number>) => {
+    let val = dict[key] ?? key;
+    if (params) {
+      Object.entries(params).forEach(([k, v]) => {
+        val = val.replace(`{${k}}`, String(v));
+      });
+    }
+    return val;
+  };
+  return { t, lang, dir: lang === "ar" ? "rtl" : "ltr" };
+}
+
+function LangProvider({ children }: { children: ReactNode }) {
   const [lang, setLang] = useState<Lang>(() => {
     if (typeof window !== "undefined") {
-      return (localStorage.getItem("lang") as Lang) || "ar";
+      const stored = localStorage.getItem("lang");
+      if (stored === "ar" || stored === "en") {
+        return stored as Lang;
+      }
+      return navigator.language.startsWith("ar") ? "ar" : "en";
     }
     return "ar";
   });
 
-  const dict: Translations = lang === "ar" ? ar : en;
-  const t = (key: string) => dict[key] || key;
-  const dir = lang === "ar" ? "rtl" : "ltr";
+  const { t, dir } = getTranslations(lang);
 
-  const handleSetLang = (l: Lang) => {
-    setLang(l);
-    localStorage.setItem("lang", l);
-  };
-
+  // Sync dir and lang attributes to <html> and persist lang
   useEffect(() => {
-    document.documentElement.lang = lang;
-    document.documentElement.dir = dir;
+    const html = document.documentElement;
+    html.setAttribute("dir", dir);
+    html.setAttribute("lang", lang);
+    localStorage.setItem("lang", lang);
   }, [lang, dir]);
 
+  const value: TranslationContextValue = { lang, dir, setLang, t };
+
   return (
-    <LangContext.Provider value={{ lang, setLang: handleSetLang, t, dir }}>
+    <LangContext.Provider value={value}>
       {children}
     </LangContext.Provider>
   );
 }
 
-export function useTranslation() {
-  return useContext(LangContext);
+function useTranslation() {
+  const ctx = useContext(LangContext);
+  if (!ctx) throw new Error("useTranslation must be used within LangProvider");
+  return ctx;
 }
+
+export { LangProvider, useTranslation, getTranslations };

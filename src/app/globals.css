@@ -1,35 +1,92 @@
+/* ============================================================
+   Theme: Layālī (ليالي)
+   A literary platform after dark —
+   night sky, warm lamplight, quiet focus
+
+   Concept: Writing begins when the noise ends.
+   Deep indigo sky, moonlight on paper, a single warm ember.
+   ============================================================ */
+
 @import "tailwindcss";
 
+/* Class-based dark mode — 
+   Tailwind v4 defaults to @media (prefers-color-scheme: dark),
+   but we toggle the .dark class on <html> ourselves via the
+   inline no-flash script and ThemeProvider.  This @custom-variant
+   makes every dark: utility respond to the .dark class instead. */
 @custom-variant dark (&:is(.dark *));
 
 @theme {
-  --font-sans: "Inter", "Segoe UI", system-ui, sans-serif;
-  --color-violet-50: #f5f3ff;
-  --color-violet-100: #ede9fe;
-  --color-violet-200: #ddd6fe;
-  --color-violet-300: #c4b5fd;
-  --color-violet-400: #a78bfa;
-  --color-violet-500: #8b5cf6;
-  --color-violet-600: #7c3aed;
-  --color-violet-700: #6d28d9;
-  --color-violet-800: #5b21b6;
-  --color-violet-900: #4c1d95;
+  /* ── Core palette ── */
+  --color-night: #0A0F20;
+  --color-night-surface: #111827;
+  --color-paper: #F5F2EE;
+  --color-moon-text: #F0EDE8;
+  --color-ember: #AC402E;
+  --color-ember-light: #E8845A;
+  --color-starlight: #4A6A8A;
+  --color-starlight-light: #7A9ABA;
+  --color-dusk: #2A2E3A;
+  --color-dusk-light: #C0C4CE;
+  --color-surface: #FFFFFF;
+  --color-surface-dark: #111827;
+  --color-moon-ink: #000000;
+
+  /* ── Typography ── */
+  --font-display: var(--font-amiri), "Amiri", serif;
+  --font-body: var(--font-naskh), var(--font-serif), "Noto Naskh Arabic", "Source Serif 4", serif;
+  --font-mono: var(--font-jetbrains), "JetBrains Mono", monospace;
 }
 
-body {
-  transition: background-color 0.2s, color 0.2s;
-}
+@layer base {
+  body {
+    background-color: var(--color-paper);
+    color: var(--color-moon-ink);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
 
-::-webkit-scrollbar {
-  width: 6px;
-}
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-::-webkit-scrollbar-thumb {
-  background: #d1d5db;
-  border-radius: 3px;
-}
-.dark ::-webkit-scrollbar-thumb {
-  background: #4b5563;
+  .dark body {
+    background-color: var(--color-night);
+    color: var(--color-moon-text);
+  }
+
+  ::selection {
+    background-color: var(--color-ember);
+    color: var(--color-paper);
+  }
+
+  .dark ::selection {
+    background-color: var(--color-ember-light);
+    color: var(--color-night);
+  }
+
+  /* ── Horizon rule ──
+     A thin gradient line used as the sole structural divider.
+     Used once per section, never as decoration. */
+  .horizon-rule {
+    display: block;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--color-ember), transparent);
+    opacity: 0.3;
+  }
+
+  .dark .horizon-rule {
+    background: linear-gradient(90deg, transparent, var(--color-ember-light), transparent);
+  }
+
+  /* ── Scrollbar ── */
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--color-starlight);
+    border-radius: 3px;
+  }
+  .dark ::-webkit-scrollbar-thumb {
+    background: var(--color-starlight-light);
+  }
 }

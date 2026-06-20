@@ -1,6 +1,5 @@
-import { Card, CardHeader, CardContent } from "@/components/ui/card";
-import { TermsClient } from "./client";
+import TermsContent from "./client";
 
 export default function TermsPage() {
-  return <TermsClient />;
+  return <TermsContent />;
 }
