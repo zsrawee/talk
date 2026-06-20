@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 
@@ -27,17 +27,27 @@ model User {
 }
 
 model Post {
-  id        String      @id @default(cuid())
-  title     String
-  content   String
+  id        String             @id @default(cuid())
   image     String?
-  published Boolean     @default(false)
-  views     Int         @default(0)
-  createdAt DateTime    @default(now())
-  updatedAt DateTime    @updatedAt
+  published Boolean            @default(false)
+  views     Int                @default(0)
+  createdAt DateTime           @default(now())
+  updatedAt DateTime           @updatedAt
   authorId  String
-  author    User        @relation(fields: [authorId], references: [id])
+  author    User               @relation(fields: [authorId], references: [id])
   comments  Comment[]
+  translations PostTranslation[]
+}
+
+model PostTranslation {
+  id       String @id @default(cuid())
+  postId   String
+  post     Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
+  language String // "ar" or "en"
+  title    String
+  content  String
+
+  @@unique([postId, language])
 }
 
 model Comment {

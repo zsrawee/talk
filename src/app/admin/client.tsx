@@ -2,16 +2,17 @@
 
 import { useSession } from "next-auth/react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import type { Post, User } from "@prisma/client";
+import type { User } from "@prisma/client";
+import type { LocalizedPost } from "@/lib/localize";
 import { Loader2, Users, FileText, Trash2, Shield } from "lucide-react";
 import { useTranslation } from "react-i18next";
 
 interface AdminData {
   users: (User & { _count: { posts: number } })[];
-  posts: Post[];
+  posts: LocalizedPost[];
   stats: {
     totalUsers: number;
     totalPosts: number;
@@ -56,7 +57,7 @@ export function AdminClient({ data }: { data: AdminData }) {
     if (!confirm(t("deletePostConfirm"))) return;
     setDeleting(postId);
     try {
-      const res = await fetch(`/api/admin/posts/${postId}`, {
+      const res = await fetch(`/api/posts/${postId}`, {
         method: "DELETE",
       });
       if (res.ok) router.refresh();
@@ -174,9 +175,14 @@ export function AdminClient({ data }: { data: AdminData }) {
                   {post.title}
                 </p>
                 <p className="text-xs text-dusk dark:text-dusk-light">
-                  {new Date(post.createdAt).toLocaleDateString("ar-SA")}
+                  {new Date(post.createdAt).toLocaleDateString(i18n.language === "ar" ? "ar-SA" : "en-US")}
                   {" · "}
                   {post.published ? t("published") : t("draft")}
+                  {post.availableLanguages.length > 1 && (
+                    <span className="mr-2 text-[10px] text-dusk/40 dark:text-dusk-light/40">
+                      [{post.availableLanguages.map((l) => l.toUpperCase()).join("/")}]
+                    </span>
+                  )}
                 </p>
               </div>
               <Button

@@ -5,21 +5,19 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { CommentSection } from "@/components/comment-section";
 import { getServerTranslations } from "@/lib/server-i18n";
+import { localizePost, isValidLang, type Lang } from "@/lib/localize";
 
-async function getPost(id: string) {
+async function getPost(id: string, lang: Lang) {
   try {
-    return await prisma.post.findUnique({
+    const post = await prisma.post.findUnique({
       where: { id },
-      select: {
-        id: true,
-        title: true,
-        content: true,
-        published: true,
-        createdAt: true,
-        updatedAt: true,
+      include: {
         author: { select: { name: true, image: true } },
+        translations: true,
       },
     });
+    if (!post) return null;
+    return localizePost(post, lang);
   } catch {
     return null;
   }
@@ -31,10 +29,11 @@ export async function generateMetadata({
   params: Promise<{ id: string }>;
 }): Promise<Metadata> {
   const { id } = await params;
-  const post = await getPost(id);
   const cookieStore = await cookies();
-  const lang = (cookieStore.get("lang")?.value as "ar" | "en") || "ar";
+  const langParam = cookieStore.get("lang")?.value;
+  const lang: Lang = isValidLang(langParam) ? langParam : "ar";
   const { t } = await getServerTranslations(lang);
+  const post = await getPost(id, lang);
 
   if (!post) return { title: t("postNotFound") };
 
@@ -49,10 +48,12 @@ export default async function PostPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const post = await getPost(id);
   const cookieStore = await cookies();
-  const lang = (cookieStore.get("lang")?.value as "ar" | "en") || "ar";
+  const langParam = cookieStore.get("lang")?.value;
+  const lang: Lang = isValidLang(langParam) ? langParam : "ar";
   const { t } = await getServerTranslations(lang);
+
+  const post = await getPost(id, lang);
 
   if (!post || !post.published) {
     notFound();
@@ -83,13 +84,21 @@ export default async function PostPage({
             <span>{t("lastUpdated")}</span>
           </>
         )}
+        {post.availableLanguages.length > 1 && (
+          <>
+            <span className="text-dusk/30 dark:text-dusk-light/30">·</span>
+            <span className="text-xs text-dusk/50 dark:text-dusk-light/50">
+              📖 {post.availableLanguages.map((l: string) => l.toUpperCase()).join(" / ")}
+            </span>
+          </>
+        )}
       </div>
 
       {/* Content */}
       <div className="mt-10">
         {post.content ? (
           <div className="prose prose-starlight max-w-none text-moon-ink dark:text-moon-text">
-            {post.content.split("\n").map((paragraph, i) => (
+            {post.content.split("\n").map((paragraph: string, i: number) => (
               <p key={i} className="mb-4 leading-relaxed">
                 {paragraph}
               </p>

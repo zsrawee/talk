@@ -2,26 +2,32 @@ import { cookies } from "next/headers";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { getServerTranslations } from "@/lib/server-i18n";
+import { localizePost, isValidLang, type Lang } from "@/lib/localize";
 
-async function getPosts() {
+async function getPosts(lang: Lang) {
   try {
-    return await prisma.post.findMany({
+    const posts = await prisma.post.findMany({
       where: { published: true },
       orderBy: { createdAt: "desc" },
       include: {
         author: { select: { name: true, image: true } },
+        translations: true,
       },
     });
+    // Localize each post to the requested language
+    return posts.map((post) => localizePost(post, lang));
   } catch {
     return [];
   }
 }
 
 export default async function PostsPage() {
-  const posts = await getPosts();
   const cookieStore = await cookies();
-  const lang = (cookieStore.get("lang")?.value as "ar" | "en") || "ar";
+  const langParam = cookieStore.get("lang")?.value;
+  const lang: Lang = isValidLang(langParam) ? langParam : "ar";
   const { t } = await getServerTranslations(lang);
+
+  const posts = await getPosts(lang);
 
   return (
     <div className="mx-auto max-w-4xl">
@@ -66,6 +72,15 @@ export default async function PostsPage() {
               <span>
                 {new Date(post.createdAt).toLocaleDateString(lang === "ar" ? "ar-SA" : "en-US")}
               </span>
+              {post.availableLanguages.length > 1 && (
+                <>
+                  <span className="text-dusk/30 dark:text-dusk-light/30 mx-1">·</span>
+                  <span className="text-xs text-dusk/50 dark:text-dusk-light/50">
+                    {post.availableLanguages.includes("ar") ? "AR" : ""}
+                    {post.availableLanguages.includes("en") ? (post.availableLanguages.includes("ar") ? " / " : "") + "EN" : ""}
+                  </span>
+                </>
+              )}
             </div>
           </Link>
         ))}

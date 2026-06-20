@@ -4,10 +4,12 @@ import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { DashboardClient } from "./client";
 import { getServerTranslations } from "@/lib/server-i18n";
+import { localizePost, isValidLang, type Lang } from "@/lib/localize";
 
 export async function generateMetadata() {
   const cookieStore = await cookies();
-  const lang = (cookieStore.get("lang")?.value as "ar" | "en") || "ar";
+  const langParam = cookieStore.get("lang")?.value;
+  const lang: Lang = isValidLang(langParam) ? langParam : "ar";
   const { t } = await getServerTranslations(lang);
   return { title: t("dashboard") };
 }
@@ -19,14 +21,26 @@ export default async function DashboardPage() {
     redirect("/login");
   }
 
+  const cookieStore = await cookies();
+  const langParam = cookieStore.get("lang")?.value;
+  const lang: Lang = isValidLang(langParam) ? langParam : "ar";
+
   const user = await prisma.user.findUnique({
     where: { email: session.user.email },
-    include: { posts: { orderBy: { createdAt: "desc" } } },
+    include: {
+      posts: {
+        include: { translations: true },
+        orderBy: { createdAt: "desc" },
+      },
+    },
   });
 
   if (!user) {
     redirect("/login");
   }
 
-  return <DashboardClient posts={user.posts} />;
+  // Localize posts for the dashboard display
+  const localizedPosts = user.posts.map((post) => localizePost(post, lang));
+
+  return <DashboardClient posts={localizedPosts} />;
 }

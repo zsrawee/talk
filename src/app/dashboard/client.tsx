@@ -3,13 +3,13 @@
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import type { Post } from "@prisma/client";
 import { DeletePostButton } from "@/components/delete-post-button";
 import { useTranslation } from "react-i18next";
+import type { LocalizedPost } from "@/lib/localize";
 
 export function DashboardClient({
   posts: initialPosts,
-}: { posts: Post[] }) {
+}: { posts: LocalizedPost[] }) {
   const { data: session } = useSession();
   const { t, i18n } = useTranslation();
 
@@ -72,6 +72,11 @@ export function DashboardClient({
                     >
                       {post.published ? t("published") : t("draft")}
                     </span>
+                    {post.availableLanguages.length > 1 && (
+                      <span className="text-[10px] text-dusk/40 dark:text-dusk-light/40">
+                        {post.availableLanguages.map((l) => l.toUpperCase()).join("/")}
+                      </span>
+                    )}
                   </div>
                   <p className="mt-1 text-xs text-dusk dark:text-dusk-light">
                     {new Date(post.createdAt).toLocaleDateString(i18n.language === "ar" ? "ar-SA" : "en-US")}

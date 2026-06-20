@@ -4,10 +4,12 @@ import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { AdminClient } from "./client";
 import { getServerTranslations } from "@/lib/server-i18n";
+import { localizePost, isValidLang, type Lang } from "@/lib/localize";
 
 export async function generateMetadata() {
   const cookieStore = await cookies();
-  const lang = (cookieStore.get("lang")?.value as "ar" | "en") || "ar";
+  const langParam = cookieStore.get("lang")?.value;
+  const lang: Lang = isValidLang(langParam) ? langParam : "ar";
   const { t } = await getServerTranslations(lang);
   return { title: t("adminPanel") };
 }
@@ -19,6 +21,10 @@ export default async function AdminPage() {
     redirect("/login");
   }
 
+  const cookieStore = await cookies();
+  const langParam = cookieStore.get("lang")?.value;
+  const lang: Lang = isValidLang(langParam) ? langParam : "ar";
+
   const [users, posts] = await Promise.all([
     prisma.user.findMany({
       orderBy: { createdAt: "desc" },
@@ -26,6 +32,7 @@ export default async function AdminPage() {
     }),
     prisma.post.findMany({
       orderBy: { createdAt: "desc" },
+      include: { translations: true },
     }),
   ]);
 
@@ -35,5 +42,8 @@ export default async function AdminPage() {
     publishedPosts: posts.filter((p) => p.published).length,
   };
 
-  return <AdminClient data={{ users, posts, stats }} />;
+  // Localize posts for admin display
+  const localizedPosts = posts.map((post) => localizePost(post, lang));
+
+  return <AdminClient data={{ users, posts: localizedPosts, stats }} />;
 }

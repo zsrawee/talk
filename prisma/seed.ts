@@ -15,24 +15,75 @@ async function main() {
     },
   });
 
-  await prisma.post.createMany({
-    data: [
-      {
-        title: "أهلاً بالعالم",
-        content: "هذا أول مقال في الموقع.",
-        published: true,
-        authorId: user.id,
-      },
-      {
-        title: "مقدمة في Next.js",
-        content: "Next.js هو إطار عمل رائع لتطوير تطبيقات React.",
-        published: true,
-        authorId: user.id,
-      },
-    ],
-  });
+  // Delete existing posts & translations, then recreate
+  await prisma.postTranslation.deleteMany();
+  await prisma.post.deleteMany();
 
-  console.log("✓ تم seeding البيانات بنجاح");
+  const posts = await Promise.all([
+    prisma.post.create({
+      data: {
+        published: true,
+        authorId: user.id,
+        translations: {
+          create: [
+            {
+              language: "ar",
+              title: "أهلاً بالعالم",
+              content: "هذا أول مقال في الموقع. مرحباً بكم في منصتنا للمقالات والنقاشات.",
+            },
+            {
+              language: "en",
+              title: "Hello World",
+              content: "This is the first post on the site. Welcome to our platform for articles and discussions.",
+            },
+          ],
+        },
+      },
+    }),
+    prisma.post.create({
+      data: {
+        published: true,
+        authorId: user.id,
+        translations: {
+          create: [
+            {
+              language: "ar",
+              title: "مقدمة في Next.js",
+              content: "Next.js هو إطار عمل رائع لتطوير تطبيقات React. يوفر أداءً ممتازاً ودعماً للـ SSR والـ SSG.",
+            },
+            {
+              language: "en",
+              title: "Introduction to Next.js",
+              content: "Next.js is a great framework for building React applications. It provides excellent performance with SSR and SSG support.",
+            },
+          ],
+        },
+      },
+    }),
+    prisma.post.create({
+      data: {
+        published: true,
+        authorId: user.id,
+        translations: {
+          create: [
+            {
+              language: "ar",
+              title: "كيف تبدأ مع TypeScript",
+              content: "TypeScript هو لغة برمجة مبنية على JavaScript تضيف أنواعاً ثابتة. يساعدك على كتابة كود أكثر أماناً وقابلية للصيانة.",
+            },
+            {
+              language: "en",
+              title: "Getting Started with TypeScript",
+              content: "TypeScript is a programming language built on JavaScript that adds static types. It helps you write safer and more maintainable code.",
+            },
+          ],
+        },
+      },
+    }),
+  ]);
+
+  console.log(`✓ Created ${posts.length} posts with Arabic and English translations`);
+  console.log("✓ Seeding completed successfully");
 }
 
 main()
