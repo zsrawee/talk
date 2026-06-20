@@ -4,7 +4,7 @@ import { createContext, useState, useEffect, useContext, type ReactNode } from "
 import { ar, en } from "./dictionaries";
 
 type Lang = "ar" | "en";
-type Translations = typeof ar;
+type Translations = typeof ar & Record<string, string>;
 
 interface TranslationContextValue {
   lang: Lang;
