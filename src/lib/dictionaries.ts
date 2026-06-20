@@ -112,6 +112,7 @@ export const ar = {
   confirm: "تأكيد",
   cancel: "إلغاء",
   confirmDeleteUser: "هل أنت متأكد من حذف هذا المستخدم؟",
+  unpublishedLabel: "غير منشور",
   publishedPostsLabel: "مقالات منشورة",
   deletePostConfirm: "هل أنت متأكد من حذف هذا المقال؟",
   commentLimit: "يمكنك الرد على منشور واحد فقط",

@@ -9,9 +9,9 @@ const registerSchema = z.object({
   name: z.string().min(2, "الاسم يجب أن يكون 2 أحرف على الأقل").max(20, "الاسم يجب أن يكون 20 حرف على الأكثر"),
   email: z.string().email("البريد الإلكتروني غير صحيح"),
   password: z.string().min(6, "كلمة المرور يجب أن تكون 6 أحرف على الأقل"),
-  captchaAnswer: z.number(),
-  captchaToken: z.string(),
-  fingerprint: z.string(),
+  captchaAnswer: z.number().optional(),
+  captchaToken: z.string().optional(),
+  fingerprint: z.string().optional(),
 });
 
 export async function POST(req: Request) {
@@ -20,7 +20,7 @@ export async function POST(req: Request) {
     const { name, email, password, captchaAnswer, captchaToken, fingerprint } =
       registerSchema.parse(body);
 
-    if (!verifyCaptcha(captchaAnswer, captchaToken)) {
+    if (captchaToken && !verifyCaptcha(captchaAnswer ?? 0, captchaToken)) {
       return NextResponse.json(
         { error: "إجابة الكابتشا غير صحيحة" },
         { status: 400 }
