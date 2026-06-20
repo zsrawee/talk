@@ -1,70 +1,54 @@
 "use client";
 
+import { useTranslation } from "react-i18next";
+
 export default function TermsContent() {
+  const { t, i18n } = useTranslation();
+
+  const sections = [
+    {
+      title: t("termsSection1Title"),
+      text: t("termsSection1Text"),
+    },
+    {
+      title: t("termsSection2Title"),
+      text: t("termsSection2Text"),
+    },
+    {
+      title: t("termsSection3Title"),
+      text: t("termsSection3Text"),
+    },
+    {
+      title: t("termsSection4Title"),
+      text: t("termsSection4Text"),
+    },
+    {
+      title: t("termsSection5Title"),
+      text: t("termsSection5Text"),
+    },
+  ];
+
   return (
     <div className="mx-auto max-w-3xl py-8">
       <span className="horizon-rule mb-4 w-20" />
       <h1 className="font-display text-4xl font-black text-moon-ink dark:text-moon-text">
-        شروط الاستخدام
+        {t("termsTitle")}
       </h1>
       <p className="mt-2 text-sm text-dusk dark:text-dusk-light">
-        آخر تحديث: {new Date().toLocaleDateString("ar-SA")}
+        {t("lastUpdated")}: {new Date().toLocaleDateString(i18n.language === "ar" ? "ar-SA" : "en-US")}
       </p>
 
       <div className="mt-10 space-y-6">
-        <section>
-          <h2 className="font-display text-xl font-bold text-moon-ink dark:text-moon-text">
-            ١. مقدمة
-          </h2>
-          <p className="mt-2 leading-relaxed text-dusk dark:text-dusk-light">
-            مرحباً بك في منصتي. باستخدامك لهذه المنصة، فإنك توافق على هذه
-            الشروط والأحكام. إذا كنت لا توافق على أي جزء من هذه الشروط،
-            فيرجى عدم استخدام المنصة.
-          </p>
-        </section>
-
-        <section>
-          <h2 className="font-display text-xl font-bold text-moon-ink dark:text-moon-text">
-            ٢. الحسابات
-          </h2>
-          <p className="mt-2 leading-relaxed text-dusk dark:text-dusk-light">
-            عند إنشاء حساب على منصتنا، يجب أن تكون المعلومات التي تقدمها
-            دقيقة وكاملة ومحدثة. أنت مسؤول عن الحفاظ على سرية حسابك وكلمة
-            المرور وتقييد الوصول إلى جهاز الكمبيوتر الخاص بك.
-          </p>
-        </section>
-
-        <section>
-          <h2 className="font-display text-xl font-bold text-moon-ink dark:text-moon-text">
-            ٣. المحتوى
-          </h2>
-          <p className="mt-2 leading-relaxed text-dusk dark:text-dusk-light">
-            أنت تمتلك حقوق المحتوى الذي تنشره على المنصة. بنشر المحتوى،
-            تمنح منصتي ترخيصاً غير حصري لعرض المحتوى الخاص بك على المنصة.
-            أنت وحدك المسؤول عن المحتوى الذي تنشره.
-          </p>
-        </section>
-
-        <section>
-          <h2 className="font-display text-xl font-bold text-moon-ink dark:text-moon-text">
-            ٤. الخصوصية
-          </h2>
-          <p className="mt-2 leading-relaxed text-dusk dark:text-dusk-light">
-            نحن نحترم خصوصيتك. يتم جمع البيانات الأساسية فقط لتشغيل
-            المنصة، ونحن لا نشارك معلوماتك الشخصية مع أطراف ثالثة دون
-            موافقتك.
-          </p>
-        </section>
-
-        <section>
-          <h2 className="font-display text-xl font-bold text-moon-ink dark:text-moon-text">
-            ٥. التعديلات
-          </h2>
-          <p className="mt-2 leading-relaxed text-dusk dark:text-dusk-light">
-            نحتفظ بالحق في تعديل هذه الشروط في أي وقت. سيتم إخطار
-            المستخدمين بالتغييرات الهامة عبر البريد الإلكتروني.
-          </p>
-        </section>
+        {sections.map((section, index) => (
+          <section key={index}>
+            <h2 className="font-display text-xl font-bold text-moon-ink dark:text-moon-text">
+              {section.title}
+            </h2>
+            <p className="mt-2 leading-relaxed text-dusk dark:text-dusk-light">
+              {section.text}
+            </p>
+          </section>
+        ))}
       </div>
     </div>
   );

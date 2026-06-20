@@ -3,12 +3,12 @@ import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { DashboardClient } from "./client";
-import { getTranslations } from "@/lib/i18n";
+import { getServerTranslations } from "@/lib/server-i18n";
 
 export async function generateMetadata() {
   const cookieStore = await cookies();
   const lang = (cookieStore.get("lang")?.value as "ar" | "en") || "ar";
-  const { t } = getTranslations(lang);
+  const { t } = await getServerTranslations(lang);
   return { title: t("dashboard") };
 }
 

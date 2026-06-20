@@ -1,7 +1,7 @@
 import { cookies } from "next/headers";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
-import { getTranslations } from "@/lib/i18n";
+import { getServerTranslations } from "@/lib/server-i18n";
 
 async function getPosts() {
   try {
@@ -21,7 +21,7 @@ export default async function PostsPage() {
   const posts = await getPosts();
   const cookieStore = await cookies();
   const lang = (cookieStore.get("lang")?.value as "ar" | "en") || "ar";
-  const { t } = getTranslations(lang);
+  const { t } = await getServerTranslations(lang);
 
   return (
     <div className="mx-auto max-w-4xl">

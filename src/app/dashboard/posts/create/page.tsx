@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Loader2 } from "lucide-react";
-import { useTranslation } from "@/lib/i18n";
+import { useTranslation } from "react-i18next";
 
 export default function CreatePostPage() {
   const router = useRouter();

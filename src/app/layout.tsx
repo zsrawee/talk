@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { cookies } from "next/headers";
 import Script from "next/script";
 import {
   Amiri,
@@ -39,20 +40,38 @@ const jetbrainsMono = JetBrains_Mono({
   display: "swap",
 });
 
-export const metadata: Metadata = {
-  title: "منصتي | Talk",
-  description: "منصة للمقالات والنقاشات — where ideas find their voice",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const cookieStore = await cookies();
+  const lang = (cookieStore.get("lang")?.value as "ar" | "en") || "ar";
+
+  return {
+    title: lang === "ar" ? "منصتي | Talk" : "Talk | MyPlatform",
+    description:
+      lang === "ar"
+        ? "منصة للمقالات والنقاشات — where ideas find their voice"
+        : "A platform for articles and discussions — where ideas find their voice",
+  };
+}
 
 export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
-  const session = await auth();
+  // Read language from cookie so the initial HTML matches the client-side i18n
+  const cookieStore = await cookies();
+  const lang = (cookieStore.get("lang")?.value as "ar" | "en") || "ar";
+  const dir = lang === "ar" ? "rtl" : "ltr";
+
+  let session = null;
+  try {
+    session = await auth();
+  } catch (e) {
+    console.error("Auth error in RootLayout:", e);
+  }
 
   return (
     <html
-      dir="rtl"
-      lang="ar"
+      dir={dir}
+      lang={lang}
       suppressHydrationWarning
       className={`${amiri.variable} ${notoNaskhArabic.variable} ${sourceSerif4.variable} ${jetbrainsMono.variable}`}
     >

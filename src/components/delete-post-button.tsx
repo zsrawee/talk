@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Trash2, Loader2 } from "lucide-react";
-import { useTranslation } from "@/lib/i18n";
+import { useTranslation } from "react-i18next";
 
 export function DeletePostButton({ postId }: { postId: string }) {
   const { t } = useTranslation();

@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { containsBadWords } from "@/lib/bad-words";
 import { handleBadWords } from "@/lib/ban-user";
-import { getTranslations } from "@/lib/i18n";
+import { getServerTranslations } from "@/lib/server-i18n";
 
 export async function GET(
   _req: Request,
@@ -26,7 +26,7 @@ export async function POST(
   const session = await auth();
   const cookieStore = await cookies();
   const lang = (cookieStore.get("lang")?.value as "ar" | "en") || "ar";
-  const { t } = getTranslations(lang);
+  const { t } = await getServerTranslations(lang);
 
   if (!session?.user) {
     return NextResponse.json({ error: t("unauthorized") }, { status: 401 });

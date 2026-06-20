@@ -5,13 +5,13 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import type { Post } from "@prisma/client";
 import { DeletePostButton } from "@/components/delete-post-button";
-import { useTranslation } from "@/lib/i18n";
+import { useTranslation } from "react-i18next";
 
 export function DashboardClient({
   posts: initialPosts,
 }: { posts: Post[] }) {
   const { data: session } = useSession();
-  const { t, lang } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   return (
     <div className="mx-auto max-w-4xl">
@@ -74,9 +74,9 @@ export function DashboardClient({
                     </span>
                   </div>
                   <p className="mt-1 text-xs text-dusk dark:text-dusk-light">
-                    {new Date(post.createdAt).toLocaleDateString(lang === "ar" ? "ar-SA" : "en-US")}
+                    {new Date(post.createdAt).toLocaleDateString(i18n.language === "ar" ? "ar-SA" : "en-US")}
                     {post.updatedAt > post.createdAt &&
-                      ` · ${lang === "ar" ? "آخر تعديل" : "last edit"} ${new Date(post.updatedAt).toLocaleDateString(lang === "ar" ? "ar-SA" : "en-US")}`}
+                      ` · ${i18n.language === "ar" ? "آخر تعديل" : "last edit"} ${new Date(post.updatedAt).toLocaleDateString(i18n.language === "ar" ? "ar-SA" : "en-US")}`}
                   </p>
                 </div>
                 <div className="mr-4 flex items-center gap-2">

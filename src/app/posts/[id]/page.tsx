@@ -4,7 +4,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { CommentSection } from "@/components/comment-section";
-import { getTranslations } from "@/lib/i18n";
+import { getServerTranslations } from "@/lib/server-i18n";
 
 async function getPost(id: string) {
   try {
@@ -34,7 +34,7 @@ export async function generateMetadata({
   const post = await getPost(id);
   const cookieStore = await cookies();
   const lang = (cookieStore.get("lang")?.value as "ar" | "en") || "ar";
-  const { t } = getTranslations(lang);
+  const { t } = await getServerTranslations(lang);
 
   if (!post) return { title: t("postNotFound") };
 
@@ -52,7 +52,7 @@ export default async function PostPage({
   const post = await getPost(id);
   const cookieStore = await cookies();
   const lang = (cookieStore.get("lang")?.value as "ar" | "en") || "ar";
-  const { t } = getTranslations(lang);
+  const { t } = await getServerTranslations(lang);
 
   if (!post || !post.published) {
     notFound();

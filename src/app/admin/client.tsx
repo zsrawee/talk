@@ -7,7 +7,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import type { Post, User } from "@prisma/client";
 import { Loader2, Users, FileText, Trash2, Shield } from "lucide-react";
-import { useTranslation } from "@/lib/i18n";
+import { useTranslation } from "react-i18next";
 
 interface AdminData {
   users: (User & { _count: { posts: number } })[];
@@ -22,7 +22,7 @@ interface AdminData {
 export function AdminClient({ data }: { data: AdminData }) {
   const { data: session } = useSession();
   const router = useRouter();
-  const { t, lang } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [deleting, setDeleting] = useState<string | null>(null);
 
   if (session?.user?.role !== "admin") {
@@ -136,7 +136,7 @@ export function AdminClient({ data }: { data: AdminData }) {
                 </div>
                 <p className="text-xs text-dusk dark:text-dusk-light">{user.email}</p>
                 <p className="text-xs text-dusk/60 dark:text-dusk-light/60">
-                  {user._count.posts} {t("posts")} · {t("memberSince")} {new Date(user.createdAt).toLocaleDateString(lang === "ar" ? "ar-SA" : "en-US")}
+                  {user._count.posts} {t("posts")} · {t("memberSince")} {new Date(user.createdAt).toLocaleDateString(i18n.language === "ar" ? "ar-SA" : "en-US")}
                 </p>
               </div>
               {user.id !== session.user.id && (

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
-import { useTranslation } from "@/lib/i18n";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Loader2 } from "lucide-react";
@@ -19,7 +19,7 @@ interface Comment {
 
 export function CommentSection({ postId }: { postId: string }) {
   const { data: session } = useSession();
-  const { t, lang } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [comments, setComments] = useState<Comment[]>([]);
   const [content, setContent] = useState("");
   const [loading, setLoading] = useState(false);
@@ -125,7 +125,7 @@ export function CommentSection({ postId }: { postId: string }) {
                     {comment.author.name || t("anonymous")}
                   </p>
                   <p className="text-xs text-dusk/60 dark:text-dusk-light/60">
-                    {new Date(comment.createdAt).toLocaleDateString(lang === "ar" ? "ar-SA" : "en-US")}
+                    {new Date(comment.createdAt).toLocaleDateString(i18n.language === "ar" ? "ar-SA" : "en-US")}
                   </p>
                 </div>
               </div>
