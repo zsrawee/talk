@@ -17,7 +17,13 @@ const LangContext = createContext<TranslationContextValue | null>(null);
 
 const allDicts: Record<Lang, Translations> = { ar, en };
 
-function getTranslations(lang: Lang = "ar") {
+interface TranslationsResult {
+  t: (key: string, params?: Record<string, string | number>) => string;
+  lang: Lang;
+  dir: "rtl" | "ltr";
+}
+
+function getTranslations(lang: Lang = "ar"): TranslationsResult {
   const dict = allDicts[lang];
   const t = (key: string, params?: Record<string, string | number>) => {
     let val = dict[key] ?? key;
