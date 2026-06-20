@@ -3,7 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "node scripts/use-local-db.js && next dev",
+    "dev:direct": "next dev",
     "build": "npx prisma generate && next build",
     "start": "next start",
     "lint": "next lint",
@@ -11,7 +12,8 @@
     "test:watch": "vitest",
     "db:generate": "npx prisma generate",
     "db:push": "npx prisma db push",
-    "db:seed": "npx tsx prisma/seed.ts"
+    "db:seed": "npx tsx prisma/seed.ts",
+    "db:local": "node scripts/use-local-db.js"
   },
   "dependencies": {
     "@prisma/client": "^6.19.3",
